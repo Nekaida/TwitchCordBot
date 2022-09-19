@@ -1,0 +1,46 @@
+name: TwitchCordBot
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black mypy pylint pydocstyle pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Check formatting with black
+      run: |
+        black . --check --diff
+      continue-on-error: true
+    - name: Lint with pylint
+      run: |
+        pylint *.py
+      continue-on-error: true
+    - name: Type checking with mypy
+      run: |
+        mypy .
+      continue-on-error: true
+    - name: Check doc strings with pydocstyle
+      run: |
+        pydocstyle .
+      continue-on-error: true
+#    - name: Test with pytest
+#      run: |
+#        pytest
